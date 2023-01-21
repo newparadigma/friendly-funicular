@@ -1,0 +1,17 @@
+FROM php:8.1.2-fpm
+
+RUN apt update && apt upgrade -y \
+    && apt install -y \
+    zip \
+    unzip \
+    libzip-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    && docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
+    && docker-php-ext-configure gd \
+    && docker-php-ext-install gd \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

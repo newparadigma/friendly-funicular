@@ -1,0 +1,45 @@
+version: "3"
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - 81:80
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./laravel/:/var/www/html
+  app:
+    build:
+      context: ./docker
+      dockerfile: app_dockerfile
+    volumes:
+      - ./laravel/:/var/www/html
+    # command: bash -c "composer create-project laravel/laravel example-app" # эта команда устанавила ларавель используя только образ докера
+    command: bash -c "composer install & php-fpm"
+  mysql:
+    image: mysql:5.7.41
+    command: --init-file /data/application/init_mysql.sql
+    volumes:
+    - ./docker/init_mysql.sql:/data/application/init_mysql.sql
+    - ./docker/volumes/mysql/home/:/home/
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: homestead
+  adminer:
+    image: adminer:4.8.1
+    ports:
+      - 8080:8080
+  node:
+    image: node:18.12.1
+    user: node
+    working_dir: /home/node/app
+    environment:
+    - NODE_ENV=development
+    volumes:
+    - ./react/:/home/node/app
+    ports:
+    - 80:3000
+    command: bash -c "npm install && npm start" 
+    # command: bash -c "npx create-react-app react-app" # эта команда устанавила рекат используя только образ докера
+
